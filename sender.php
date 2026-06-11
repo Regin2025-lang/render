@@ -11,10 +11,11 @@ $response = file_get_contents(
 );
 
 
-if($response === false){
+echo "<h3>Response InfinityFree:</h3>";
 
-    die("Tidak bisa ambil API InfinityFree");
-}
+echo "<pre>";
+var_dump($response);
+echo "</pre>";
 
 
 $data = json_decode(
@@ -23,51 +24,10 @@ $data = json_decode(
 );
 
 
-if(!isset($data['message'])){
+echo "<h3>Hasil JSON:</h3>";
 
-    echo "Response InfinityFree:";
-    echo "<pre>";
-    print_r($data);
-    echo "</pre>";
+echo "<pre>";
+var_dump($data);
+echo "</pre>";
 
-    exit;
-}
-
-
-$message = $data['message'];
-
-
-$url =
-"https://api.telegram.org/bot".
-$config['telegram_token'].
-"/sendMessage";
-
-
-$post = [
-    "chat_id"=>$config['chat_id'],
-    "text"=>$message
-];
-
-
-$ch = curl_init();
-
-curl_setopt($ch,CURLOPT_URL,$url);
-curl_setopt($ch,CURLOPT_POST,true);
-curl_setopt($ch,CURLOPT_POSTFIELDS,$post);
-curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
-
-
-$result = curl_exec($ch);
-
-
-if(curl_errno($ch)){
-
-    echo curl_error($ch);
-
-}else{
-
-    echo $result;
-}
-
-
-curl_close($ch);
+exit;
