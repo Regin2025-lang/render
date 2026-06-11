@@ -6,17 +6,35 @@ $config = json_decode(
 );
 
 
-$response = file_get_contents(
+// Ambil data dari InfinityFree
+
+$ch = curl_init();
+
+curl_setopt(
+    $ch,
+    CURLOPT_URL,
     $config['api_url']
 );
 
+curl_setopt(
+    $ch,
+    CURLOPT_RETURNTRANSFER,
+    true
+);
 
-echo "<h3>Response InfinityFree:</h3>";
+$response = curl_exec($ch);
 
-echo "<pre>";
-var_dump($response);
-echo "</pre>";
 
+if(curl_errno($ch)){
+
+    die("API ERROR: ".curl_error($ch));
+
+}
+
+curl_close($ch);
+
+
+// tampilkan untuk cek
 
 $data = json_decode(
     $response,
@@ -24,10 +42,78 @@ $data = json_decode(
 );
 
 
-echo "<h3>Hasil JSON:</h3>";
+if(!isset($data['message'])){
 
-echo "<pre>";
-var_dump($data);
-echo "</pre>";
+    echo "Response API:";
+    echo "<pre>";
+    print_r($response);
+    echo "</pre>";
 
-exit;
+    exit;
+
+}
+
+
+$message = $data['message'];
+
+
+
+// Kirim Telegram
+
+$url =
+"https://api.telegram.org/bot".
+$config['telegram_token'].
+"/sendMessage";
+
+
+$post = [
+
+    "chat_id" => $config['chat_id'],
+    "text" => $message
+
+];
+
+
+$ch = curl_init();
+
+
+curl_setopt(
+    $ch,
+    CURLOPT_URL,
+    $url
+);
+
+curl_setopt(
+    $ch,
+    CURLOPT_POST,
+    true
+);
+
+curl_setopt(
+    $ch,
+    CURLOPT_POSTFIELDS,
+    $post
+);
+
+curl_setopt(
+    $ch,
+    CURLOPT_RETURNTRANSFER,
+    true
+);
+
+
+$result = curl_exec($ch);
+
+
+if(curl_errno($ch)){
+
+    echo "Telegram ERROR: ".curl_error($ch);
+
+}else{
+
+    echo $result;
+
+}
+
+
+curl_close($ch);
