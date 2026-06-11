@@ -6,50 +6,55 @@ $config = json_decode(
 );
 
 
-echo "URL API:<br>";
-echo $config['api_url'];
-
-echo "<hr>";
-
 $ch = curl_init();
 
+curl_setopt($ch,CURLOPT_URL,$config['api_url']);
+curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
 
-curl_setopt(
-    $ch,
-    CURLOPT_URL,
-    $config['api_url']
-);
+$response = curl_exec($ch);
 
-curl_setopt(
-    $ch,
-    CURLOPT_RETURNTRANSFER,
-    true
-);
+curl_close($ch);
 
-curl_setopt(
-    $ch,
-    CURLOPT_HEADER,
+
+$data = json_decode(
+    $response,
     true
 );
 
 
-$result = curl_exec($ch);
+if(!isset($data['message'])){
 
-
-echo "<pre>";
-
-if(curl_errno($ch)){
-
-    echo "CURL ERROR: ";
-    echo curl_error($ch);
-
-}else{
-
-    echo $result;
-
+    echo "API gagal:";
+    echo "<pre>";
+    print_r($response);
+    echo "</pre>";
+    exit;
 }
 
-echo "</pre>";
 
+$message=$data['message'];
+
+
+$url=
+"https://api.telegram.org/bot".
+$config['telegram_token'].
+"/sendMessage";
+
+
+$post=[
+"chat_id"=>$config['chat_id'],
+"text"=>$message
+];
+
+
+$ch=curl_init();
+
+curl_setopt($ch,CURLOPT_URL,$url);
+curl_setopt($ch,CURLOPT_POST,true);
+curl_setopt($ch,CURLOPT_POSTFIELDS,$post);
+curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+
+
+echo curl_exec($ch);
 
 curl_close($ch);
