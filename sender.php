@@ -1,17 +1,22 @@
 <?php
 
-// ambil config Render
 $config = json_decode(
     file_get_contents("config.json"),
     true
 );
 
-// ambil data dari InfinityFree
+// ambil data dari InfinityFree (PAKAI USER AGENT)
 $ch = curl_init();
 
 curl_setopt($ch, CURLOPT_URL, "https://urakurak.site.je/config.json");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+// 🔥 penting: pura-pura browser
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    "User-Agent: Mozilla/5.0",
+    "Accept: application/json"
+]);
 
 $response = curl_exec($ch);
 $error = curl_error($ch);
@@ -23,15 +28,15 @@ if($error){
 }
 
 if(!$response){
-    die("EMPTY RESPONSE FROM INFINITYFREE");
+    die("EMPTY RESPONSE (InfinityFree blocked request)");
 }
 
-// decode JSON
+// debug kalau masih kosong
 $data = json_decode($response, true);
 
 if(!isset($data['message'])){
     echo "RAW RESPONSE:<br><pre>";
-    echo $response;
+    var_dump($response);
     echo "</pre>";
     exit;
 }
